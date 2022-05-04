@@ -49,6 +49,10 @@ app.get('/', (req, res) => {
   res.send('Hello World!')
 })
 
+app.get('/getdata', (req, res) => {
+    res.send('Hello World!')
+  })
+
 
 
 app.post('/upload', (req, res) => {
@@ -120,8 +124,10 @@ app.post('/upload', (req, res) => {
     {
         const temp = reader.utils.sheet_to_json(file.Sheets[file.SheetNames[i]],{raw:false},{defval:""})
         data = JSON.stringify(temp,undefined,4)
+        countres = 0
         temp.forEach((res) => {
             console.log(res)
+            countres = countres + 1
         console.log(res["Record Number"]);
         
         let patenNumber= res["Record Number"];
@@ -455,6 +461,10 @@ app.post('/upload', (req, res) => {
     }
 
      ///condition added for HML append all avg in list 
+
+     if (countres<2){
+        return res.status(500).send({ msg: "file is empty" })
+     }
     
 
 
@@ -499,16 +509,24 @@ app.post('/upload', (req, res) => {
         console.log('written file');
         console.log("I am at last")
 
-        res.setHeader(
-            "Content-Type",
-            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-          );
-          res.setHeader(
-            "Content-Disposition",
-            "attachment; filename=" + "tutorials.xlsx"
-          );
+        // res.setHeader(
+        //     "Content-Type",
+        //     "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        //   );
+        //   res.setHeader(
+        //     "Content-Disposition",
+        //     "attachment; filename=" + "tutorials.xlsx"
+            
+        //   );
+
+         
           
-        res.download(`${__dirname}/public/PatentRanking.xlsx`);
+        // res.download(`${__dirname}/public/PatentRanking.xlsx`);
+        console.log("output data is")
+        console.log(outputdata)
+
+        res.send(outputdata);
+       
       });
 
      
@@ -526,11 +544,11 @@ app.post('/upload', (req, res) => {
     //res.download(`./public/PatentRanking.xlsx`)
     
     // Printing data
-    //console.log("data is")
-    //console.log(data)
+    // console.log("data is")
+    // console.log(data)
 
 
-    //return outputdata;
+    // return outputdata;
 
 
     //return res.send({ file: myFile.name, path: `/${myFile.name}`, ty: myFile.type });
