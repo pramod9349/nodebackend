@@ -12,6 +12,48 @@ app.use(fileUpload());
 
 
 
+
+function geograhical(SimpleFamilyMembers){
+    var arrcountry = [];
+        var chekcounter=0;
+        console.log("this is country name and numeber ///////////////////////////////")
+        console.log(SimpleFamilyMembers)
+        console.log("end of the family name and number//////////////////////////////")
+        
+        emptyval=0
+        if (SimpleFamilyMembers==="None" ){
+            emptyval=1
+        }
+
+        if (SimpleFamilyMembers != undefined && emptyval != 1){   
+            if (SimpleFamilyMembers.includes(",")){
+                chekcounter=1;
+                SimpleFamilyMembers=SimpleFamilyMembers.replace(/\r?\n|\r/g, "/")
+                var str_array = SimpleFamilyMembers.split(',');
+                console.log("this is final length")
+                console.log(str_array.length)
+                console.log("this is my last value")
+                
+            }else{
+                chekcounter=2
+            }
+        }
+
+        if(chekcounter===1 ){
+            SimpleFamilyMembers_Counter=str_array.length;   //if  records present 
+
+        }else if(chekcounter===2){
+            SimpleFamilyMembers_Counter=1;
+        }
+        else{
+            console.log("if simple member is not present")
+            SimpleFamilyMembers_Counter=0;
+        }
+        console.log(`found value is   ${SimpleFamilyMembers_Counter}` )
+        return SimpleFamilyMembers_Counter
+        
+}
+
 function diff_years(dt2, dt1) 
  {
   var diff =(dt2.getTime() - dt1.getTime()) / 1000;
@@ -44,7 +86,6 @@ function diff_years(dt2, dt1)
 
  }
 
-
 app.get('/', (req, res) => {
   res.send('Hello World!')
 })
@@ -68,39 +109,37 @@ app.post('/upload', (req, res) => {
 //   for (const file of files) {
 //       console.log(file + ' : File Deleted Successfully.');
 //       fs.unlinkSync(folder+file);
-//   }
-  
+//   }  
 // });
 
     const Family_Legal_StatusDeadAlive_server=(req.body.Family_Legal_StatusDeadAlive_Counter)
     const SimpleFamilyMembers_Counter_server=(req.body.SimpleFamilyMembers_Counter)
     const Legal_Status_DeadAlive_Counter_server=(req.body.Legal_Status_DeadAlive_Counter)
     const PriorityCountryCode_Counter_server=(req.body.PriorityCountryCode_Counter)
-    const Legal_Status_Current_Counter_server=(req.body.Legal_Status_Current_Counter)
-    const Is_Litigated_Counter_server=(req.body.Is_Litigated_Counter)
+    //const Legal_Status_Current_Counter_server=(req.body.Legal_Status_Current_Counter)
+    const Designated_States_server=(req.body.Is_Litigated_Counter)
     const FilingApplicationDate_Counter_server=(req.body.FilingApplicationDate_Counter)
-    const First_Claim_Counter_server=(req.body.First_Claim_Counter)
+    //const First_Claim_Counter_server=(req.body.First_Claim_Counter)
     const NumbersOfIndependentClaims_Counter_server=(req.body.NumbersOfIndependentClaims_Counter)
     const ForwardCitationsIndividual_Counter_server=(req.body.ForwardCitationsIndividual_Counter)
-    const Is_Opposed_Counter_server=(req.body.Is_Opposed_Counter)
+    //const Is_Opposed_Counter_server=(req.body.Is_Opposed_Counter)
     const EstimatedExpiryDate_Counter_server=(req.body.EstimatedExpiryDate_Counter)
     const Litigation_counter_server=(req.body.Litigation_counter)
 
     //console.log(`this is litigation value from front end ${Litigation_counter_server} `)
 
-
-
     // console.log(Family_Legal_StatusDeadAlive_server,SimpleFamilyMembers_Counter_server,Legal_Status_DeadAlive_Counter_server
     //     ,PriorityCountryCode_Counter_server,Legal_Status_Current_Counter_server,Is_Litigated_Counter_server,FilingApplicationDate_Counter_server
     //     ,First_Claim_Counter_server,NumbersOfIndependentClaims_Counter_server,ForwardCitationsIndividual_Counter_server
     //     ,Is_Opposed_Counter_server,EstimatedExpiryDate_Counter_server,Litigation_counter_server)
-
-
 //console.log("request is")
 //console.log(req)
 
     const myFile = req.files.file;
     thisfilename = "clientupload.xlsx";
+    // console.log("I am before return");
+    // return 0;
+    // console.log("I am after return");
     
 //    myFile.mv(`${__dirname}/public/${myFile.name}`, function (err) {
     myFile.mv(`${__dirname}/public/${myFile.name}`, function (err) {
@@ -108,6 +147,8 @@ app.post('/upload', (req, res) => {
         console.log(err)
         return res.status(700).send({ msg: "Error hai" });
     }
+
+    
 
     console.log("in server me")
     const file = reader.readFile(`./public/${myFile.name}`,{type:'binary',cellText:false,cellDates:true})
@@ -131,41 +172,45 @@ app.post('/upload', (req, res) => {
         console.log(res["Record Number"]);
         
         let patenNumber= res["Record Number"];
-        let Legal_Status_Current= res["Legal Status Current"];            
+
+        // if (patenNumber===undefined){
+
+        //     const Error_handling = {
+        //         erroris: 'Fileerror',
+                
+        //       };
+        //     return Error_handling;     //// sending error if value not found
+        // }
+        //let Legal_Status_Current= res["Legal Status Current"];            
         let Is_Litigated=(res["Is Litigated"]);     //this value is for both litigation and family memeber litigation
-        let Is_Opposed=(res["Is Opposed"]);
+        //let Is_Opposed=(res["Is Opposed"]);
         let Legal_Status_DeadAlive=(res["Legal Status (Dead/Alive)"]);
         let Family_Legal_StatusDeadAlive=(res["Family Legal Status(Dead/Alive)"]);
-        let ForwardCitationsIndividual=(res["No. of Forward Citations (Individual)"]);
-        let PriorityCountryCode=(res["Priority Country Code"]);
+        let ForwardCitationsIndividual=(res["No. of Forward Citations (Individual)"]||res["No. of Forward Citations"] );
+        let PriorityCountryCode=(res["Publication Country\r\n(Priority Country- US/EP/CN)"]);
         let EstimatedExpiryDate=(res["Estimated Expiry Date"]);
-        let First_Claim=  (res["First Claim"]);
+        //let First_Claim=  (res["First Claim"]);
         let NumbersOfIndependentClaims =(res["No. of Independent Claims"]);
-        let SimpleFamilyMembers =(res["Simple Family Members"]);
-        let FilingApplicationDate=(res["Filing/Application Date"]); 
-        let PublicationIssueDate=(res["Publication/Issue Date"]);
+        let SimpleFamilyMembers =(res["Designated States"]);
+        let FilingApplicationDate=(res["Backward Citation Count"]);     //new logic for backward citation
+        let designatedstate=(res["Active in Designated States"]);
         
       
-        // console.log("Legal status******************************")
-        // console.log(patenNumber)
-        // console.log(Legal_Status_Current);
-        // console.log("Legal status******************************")
-
-        Legal_Status_Current_Counter=0
-        Is_Opposed_Counter=0
         Legal_Status_DeadAlive_Counter=0
         Family_Legal_StatusDeadAlive_Counter=0
         ForwardCitationsIndividual_Counter=0
         PriorityCountryCode_Counter=0
         Is_Litigated_Counter=0
         EstimatedExpiryDate_Counter=0
-        First_Claim_Counter=0
+        //First_Claim_Counter=0
         NumbersOfIndependentClaims_Counter=0
         SimpleFamilyMembers_Counter=0
-        FilingApplicationDate_Counter=0
+        FilingApplicationDate_Counter=0       ///for backward citatiin count
         Litigation_counter=0
+        designatedstate_counter=0
         
         //for Legal Status Current
+        /*
         if (Legal_Status_Current != undefined){                
             if((Legal_Status_Current).toLowerCase().includes("granted"))
             {
@@ -179,6 +224,13 @@ app.post('/upload', (req, res) => {
         }else{
             Legal_Status_Current=0;    //if value is not found
         }
+        */
+
+        //for designatedstate logic
+        designatedstate_counter=geograhical(designatedstate)
+
+        console.log("Designated state is")
+        console.log(designatedstate_counter)
 
         //for islitigation
 
@@ -198,7 +250,7 @@ app.post('/upload', (req, res) => {
         }
 
         //for is opposed 
-
+/*
         if (Is_Opposed != undefined){                
             if((Is_Opposed).toLowerCase().includes("no"))
             {
@@ -213,7 +265,7 @@ app.post('/upload', (req, res) => {
             console.log("opposition is not found")
             Is_Opposed_Counter=0;
         }
-
+*/
         //for legalStatus Dead or alive
 
         if (Legal_Status_DeadAlive != undefined){                
@@ -256,12 +308,11 @@ app.post('/upload', (req, res) => {
             ForwardCitationsIndividual_Counter=ForwardCitationsIndividual
             
         }else{
-            console.log("forward citation is missing")
+            console.log("forward citation is missing or zero")
             ForwardCitationsIndividual_Counter=0;
         }
 
         //console.log(`checking type ${typeof(Number(ForwardCitationsIndividual))}*******************88888///////////////`)
-
 
         //for priorityCountyCode 
         if (PriorityCountryCode != undefined){                
@@ -303,10 +354,8 @@ app.post('/upload', (req, res) => {
             EstimatedExpiryDate_Counter=0;
         }
         
-        
- 
         //for first claim 
-
+/*
         if (First_Claim != undefined){     
             
             let claimlen = First_Claim.length
@@ -318,7 +367,7 @@ app.post('/upload', (req, res) => {
             First_Claim_Counter=0;
         }
         console.log(`this is claim ${First_Claim_Counter}for claim`)
-
+*/
 
         //for no. of independenet claims
 
@@ -331,48 +380,13 @@ app.post('/upload', (req, res) => {
             NumbersOfIndependentClaims_Counter=0;
         }
 
-        
-        //for simple family members
-
-        var arrcountry = [];
-        var chekcounter=0;
-        if (SimpleFamilyMembers != undefined){   
-            if (SimpleFamilyMembers.search("/")){
-                console.log("in if condition")
-                chekcounter=1;
-                SimpleFamilyMembers=SimpleFamilyMembers.replace(/\r?\n|\r/g, "/")
-                var str_array = SimpleFamilyMembers.split('/');
-                for(var i = 0; i < str_array.length; i++) {
-                    // Trim the excess whitespace.
-                    str_array[i]=str_array[i].trim();
-                    // Add additional code here, such as:
-                    console.log(i)
-                    console.log(str_array[i]+"==> "+str_array[i].substring(0, 2));
-                    arrcountry.push(str_array[i].substring(0, 2));
-                }
-            }
-            
-
-        }
-
-        if (chekcounter===1){
-
-            console.log("print value in array")
-            console.log(arrcountry);
-            uniq = [...new Set(arrcountry)];
-            console.log(uniq)
-            SimpleFamilyMembers_Counter=((uniq).length);
-            console.log(`this is last array value ${SimpleFamilyMembers_Counter}`)
     
-        }else if(SimpleFamilyMembers != undefined){
-            SimpleFamilyMembers_Counter=1;   //if  records present 
+        //for simple family members  Geographical coverage,,,,
 
-        }else{
-            console.log("if simple member is not present")
-            SimpleFamilyMembers_Counter=0;
-        }
-
+        SimpleFamilyMembers_Counter=geograhical(SimpleFamilyMembers)    //this function is new 
+        
         //for (filling /application date)
+        /*
         if (FilingApplicationDate != undefined && PublicationIssueDate!==undefined){
             
             console.log("yes in handle undefined  get the value!!!!!!")
@@ -390,6 +404,23 @@ app.post('/upload', (req, res) => {
              console.log("in date is not present")
             FilingApplicationDate_Counter=0;
          }
+         */
+
+
+         /// for Backwardcitation count  implimented new changes
+         if (FilingApplicationDate != undefined){    
+            FilingApplicationDate= Number(FilingApplicationDate);
+            FilingApplicationDate_Counter=FilingApplicationDate
+            
+        }else{
+            console.log("forward citation is missing")
+            FilingApplicationDate_Counter=0;
+        }
+        console.log("this is final forward citation count")
+        console.log(ForwardCitationsIndividual_Counter)
+        console.log(FilingApplicationDate_Counter)
+        console.log("end of this")
+
 
          //Calculating total weightage for each patent
          let maxvalue=[]
@@ -398,25 +429,26 @@ app.post('/upload', (req, res) => {
          const t2= Number(SimpleFamilyMembers_Counter_server*SimpleFamilyMembers_Counter)/100
          const t3= Number(Legal_Status_DeadAlive_Counter_server*Legal_Status_DeadAlive_Counter)/100
          const t4= Number(PriorityCountryCode_Counter_server*PriorityCountryCode_Counter)/100
-         const t5= Number(Legal_Status_Current_Counter_server*Legal_Status_Current_Counter)/100
-         const t6= Number(Is_Litigated_Counter_server*Is_Litigated_Counter)/100
+         //const t5= Number(Legal_Status_Current_Counter_server*Legal_Status_Current_Counter)/100
+         //const t6= Number(Is_Litigated_Counter_server*Is_Litigated_Counter)/100
          const t7= Number(FilingApplicationDate_Counter_server*FilingApplicationDate_Counter)/100
-         const t8= Number(First_Claim_Counter_server*First_Claim_Counter)/100
+         //const t8= Number(First_Claim_Counter_server*First_Claim_Counter)/100
          const t9= Number(NumbersOfIndependentClaims_Counter_server*NumbersOfIndependentClaims_Counter)/100
          const t10= Number(ForwardCitationsIndividual_Counter_server*ForwardCitationsIndividual_Counter)/100
-         const t11= Number(Is_Opposed_Counter_server*Is_Opposed_Counter)/100
+         //const t11= Number(Is_Opposed_Counter_server*Is_Opposed_Counter)/100
          const t12= Number(EstimatedExpiryDate_Counter_server*EstimatedExpiryDate_Counter)/100
          const t13= Number(Litigation_counter_server*Is_Litigated_Counter)/100   //value is same for familiy litigation
+         const t14= Number(Designated_States_server*designatedstate_counter)/100
          console.log("this is starting of avg value")
          console.log("this is largest value")
-         var arr = [t1,t2,t3,t4,t5,t6,t7,t8,t9,t10,t11,t12,t13];
+         var arr = [t1,t2,t3,t4,t7,t9,t10,t12,t13,t14];
         //  var max = Math.max(arr);
         //  var max = arr.reduce(function(a, b) {
         //     return Math.max(a, b);
         // }, -Infinity);
         // console.log(t1,t2,t3,t4,t5,t6,t7,t8,t9,t10,t11,t12,t13)
         //  console.log(`this is maximum value for the ${max}`)
-         const sumofAllavg=(t1+t2+t3+t4+t5+t6+t7+t8+t9+t10+t11+t12+t13)
+         const sumofAllavg=(t1+t2+t3+t4+t7+t9+t10+t12+t13+t14)
          let hightestval= 0
          let tempval=0
          if  (tempval>sumofAllavg){
@@ -466,8 +498,6 @@ app.post('/upload', (req, res) => {
         return res.status(500).send({ msg: "file is empty" })
      }
     
-
-
             console.log(allavgValue)
                 var max = Math.max(allavgValue);
                         var max = allavgValue.reduce(function(a, b) {
@@ -483,7 +513,7 @@ app.post('/upload', (req, res) => {
                          }
                 
 
-           // console.log(outputdata)
+        // console.log(outputdata)
         //end of writing the data to sheet
 
         for(z=0; z<outputdata.length; z++)
