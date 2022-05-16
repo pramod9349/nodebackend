@@ -167,34 +167,43 @@ app.post('/upload', (req, res) => {
         data = JSON.stringify(temp,undefined,4)
         countres = 0
         temp.forEach((res) => {
+            // console.log("calling server to response")
             console.log(res)
+            // console.log("end of calling server")
             countres = countres + 1
         console.log(res["Record Number"]);
-        
         let patenNumber= res["Record Number"];
-
-        // if (patenNumber===undefined){
-
-        //     const Error_handling = {
-        //         erroris: 'Fileerror',
-                
-        //       };
-        //     return Error_handling;     //// sending error if value not found
-        // }
         //let Legal_Status_Current= res["Legal Status Current"];            
-        let Is_Litigated=(res["Is Litigated"]);     //this value is for both litigation and family memeber litigation
+        let Is_Litigated=(res["Is Litigated"]||res["Is Litigated(Yes/No)"]);     //this value is for both litigation and family memeber litigation
         //let Is_Opposed=(res["Is Opposed"]);
         let Legal_Status_DeadAlive=(res["Legal Status (Dead/Alive)"]);
         let Family_Legal_StatusDeadAlive=(res["Family Legal Status(Dead/Alive)"]);
-        let ForwardCitationsIndividual=(res["No. of Forward Citations (Individual)"]||res["No. of Forward Citations"] );
-        let PriorityCountryCode=(res["Publication Country\r\n(Priority Country- US/EP/CN)"]);
-        let EstimatedExpiryDate=(res["Estimated Expiry Date"]);
+        let ForwardCitationsIndividual=(res["No. of Forward Citations (Individual)"]||res["No. of Forward Citations"]|| res["No. of Forward Citations (Individual) For example Count 10. 20 etc."]);
+        let PriorityCountryCode=(res["Publication Country\r\n(Priority Country- US/EP/CN)"] );
+        let EstimatedExpiryDate=(res["Estimated Expiry Date"]||res ["Estimated Expiry Date (Remaining Life)"]  || res["Estimated Expiry Date (Remaining Life) For example MM/DD/YYYY"]);
         //let First_Claim=  (res["First Claim"]);
-        let NumbersOfIndependentClaims =(res["No. of Independent Claims"]);
-        let SimpleFamilyMembers =(res["Designated States"]);
-        let FilingApplicationDate=(res["Backward Citation Count"]);     //new logic for backward citation
-        let designatedstate=(res["Active in Designated States"]);
+        let NumbersOfIndependentClaims =(res["No. of Independent Claims"]||res["No. of Independent Claim For example Count 4,6,8 etc."]);
+        let SimpleFamilyMembers =(res["Designated States"]|| res["Designated States (Geographical Coverage) For example EP/US/CN/WO etc."]);
+        let FilingApplicationDate=(res["Backward Citation Count"] || res["Backward Citation Count For example Count 10. 20 etc."]);     //new logic for backward citation
+        let designatedstate=(res["Active in Designated States"]||res ["Active in Designated States For example EP/US/CN/WO etc."]);
         
+
+        console.log("this is new litigation **********************************************")
+
+        console.log(` this is litigation ---- ${Is_Litigated}`)
+        console.log(`legatsatus ---- ${Legal_Status_DeadAlive}`)
+        console.log(`family leagal status---- ${Family_Legal_StatusDeadAlive}`)
+        console.log(`froward citation is---- ${ForwardCitationsIndividual}`)
+        console.log(`Designated state is---- ${SimpleFamilyMembers}`)
+        console.log(`estimated expiry date---- ${EstimatedExpiryDate}`)
+        console.log(`independent cliam is---- ${NumbersOfIndependentClaims}`)
+        console.log(`backword citation cliam is---- ${FilingApplicationDate}`)
+        console.log(`publication citation cliam is---- ${PriorityCountryCode}`)
+        console.log(`designated state is---- ${designatedstate}`)
+        
+        console.log("end of  new litigation **********************************************")
+
+
       
         Legal_Status_DeadAlive_Counter=0
         Family_Legal_StatusDeadAlive_Counter=0
@@ -337,23 +346,32 @@ app.post('/upload', (req, res) => {
 
         
         //for EstimateExpiray Date
-       //need to be done by shivanshu****************************************
+       //need to be done by ****************************************
+       console.log("Before estimated logic")
+       console.log(`THIS IS ESTIMATED EXPIRY DATE =======> ${EstimatedExpiryDate}`)
         if (EstimatedExpiryDate != undefined){     
-             
+             console.log("in estimated expiry date condition =====>check ")
             thisdate=new Date();
             let todaydateis=thisdate.getFullYear()+'/'+(thisdate.getMonth()+1)+'/'+thisdate.getDate();
             todaydateis=new Date(todaydateis);
+            console.log(`today date is ----------->${todaydateis}`)
             EstimatedExpiryDate =new Date(EstimatedExpiryDate);
+            console.log(`this is estimated date for ${EstimatedExpiryDate}`)
             //console.log(`this is today date${todaydateis}`)
             //console.log(`this is estimated date  ${EstimatedExpiryDate}*******************************`);
             console.log(`this is date difference in year ${diff_years(EstimatedExpiryDate,todaydateis)}`);
             const yeardifference=diff_years(EstimatedExpiryDate,todaydateis)
+            console.log(`date is------->${yeardifference}`)
             EstimatedExpiryDate_Counter=yeardifference
         }else{
             console.log("Estimate date is not present ......")
             EstimatedExpiryDate_Counter=0;
         }
         
+            if (isNaN(EstimatedExpiryDate_Counter)) EstimatedExpiryDate_Counter = 0;
+             console.log(EstimatedExpiryDate_Counter);
+        console.log("After no")
+        console.log(EstimatedExpiryDate_Counter)
         //for first claim 
 /*
         if (First_Claim != undefined){     
